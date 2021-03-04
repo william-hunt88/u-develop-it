@@ -19,34 +19,34 @@ router.get("/notes", (req, res) => {
 
 router.post("/notes", (req, res) => {
   console.log(req.body)
-  // fs.readFile(
-  //   path.join(__dirname, "../../db/db.json"),
-  //   "utf8",
-  //   function (err, data) {
-  //     if (err) {
-  //       throw err;
-  //     }
-  //     var db = JSON.parse(data);
-  //     var newNotes = { ...req.body, id: uuidv4() };
-  //     var updatedNotes = [newNotes, ...db];
-  //     console.log(updatedNotes)
-  //     try {
-  //       fs.writeFile(
-  //         path.join(__dirname, "../../db/db.json"),
-  //         updatedNotes,
-  //         function (err) {
-  //           if (err) {
-  //             console.log(err);
-  //           } else {
-  //             res.json(true);
-  //           }
-  //         }
-  //       );
-  //     } catch (err) {
-  //       res.json(err);
-  //     }
-  //   }
-  // );
+  fs.readFile(
+    path.join(__dirname, "../../db/db.json"),
+    "utf8",
+    function (err, data) {
+      if (err) {
+        throw err;
+      }
+      var db = JSON.parse(data);
+      var newNotes = { ...req.body, id: uuidv4() };
+      var updatedNotes = [newNotes, ...db];
+      console.log(updatedNotes)
+      try {
+        fs.writeFile(
+          path.join(__dirname, "../../db/db.json"),
+          updatedNotes,
+          function (err) {
+            if (err) {
+              console.log(err);
+            } else {
+              res.json(true);
+            }
+          }
+        );
+      } catch (err) {
+        res.json(err);
+      }
+    }
+  );
 });
 
 router.delete("/notes/:id", (req, res) => {});
