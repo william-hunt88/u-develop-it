@@ -1,19 +1,20 @@
 const express = require('express');
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 3001;
 const app = express();
 const htmlRoutes = require('./routes/htmlRoutes');
-const router = require('express').Router();
-const path = require('path')
+const apiRoutes = require('./routes/apiRoutes')
 app.use(express.static('public'));
 
+app.use('/', htmlRoutes)
+app.use('/api', apiRoutes)
 
-app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "./public/index.html"))
-})
+// Express middleware
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
 
-app.get("/notes", (req, res) => {
-    res.sendFile(path.join(__dirname, "./public/notes.html"))
-})
+
+
+
 
 app.listen(PORT, () => {
     console.log(`API server now on port ${PORT}!`);
