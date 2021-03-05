@@ -113,6 +113,90 @@ app.post("/api/candidate", ({ body }, res) => {
   });
 });
 
+// What request type would be appropriate for updating data? We've established that GET is for reading, POST for creating, and DELETE for deleting.
+// None of those make sense for updating, but there is a fourth request type we can use: the PUT request.
+
+// This route might feel a little strange because we're using a parameter for the candidate's id (req.params.id), but the request body contains the party's id (req.body.party_id).
+// Why mix the two? Again, we want to follow best practices for consistency and clarity.
+// The affected row's id should always be part of the route (e.g., /api/candidate/2) while the actual fields we're updating should be part of the body.
+
+// If the front end will be making this request, though, then we should be extra sure that a party_id was provided before we attempt to update the database. 
+// Let's leverage our friend's inputCheck() function again to do so.
+
+app.put("/api/candidate/:id", (req, res) => {
+  const errors = inputCheck(req.body, "party_id");
+
+  if (errors) {
+    res.status(400).json({ error: errors });
+    return;
+  }
+  const sql = `UPDATE candidates SET party_id = ? 
+               WHERE id = ?`;
+  const params = [req.body.party_id, req.params.id];
+
+  db.run(sql, params, function (err, result) {
+    if (err) {
+      res.status(400).json({ error: err.message });
+      return;
+    }
+
+    res.json({
+      message: "success",
+      data: req.body,
+      changes: this.changes,
+    });
+  });
+});
+
+app.get("/api/parties", (req, res) => {
+  const sql = `SELECT * FROM parties`;
+  const params = [];
+  db.all(sql, params, (err, rows) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+
+    res.json({
+      message: "success",
+      data: rows,
+    });
+  });
+});
+
+app.get("/api/party/:id", (req, res) => {
+  const sql = `SELECT * FROM parties WHERE id = ?`;
+  const params = [req.params.id];
+  db.get(sql, params, (err, row) => {
+    if (err) {
+      res.status(400).json({ error: err.message });
+      return;
+    }
+
+    res.json({
+      message: "success",
+      data: row,
+    });
+  });
+});
+
+// Building a delete route will give us an opportunity to test the ON DELETE SET NULL constraint effect through the API.
+// Because the intention of this route is to remove a row from the table, we should use app.delete() instead of app.get().
+// We also need to use normal function syntax for the db.run() callback instead of an arrow function, or else we'd lose the context of this.changes.
+
+app.delete("/api/party/:id", (req, res) => {
+  const sql = `DELETE FROM parties WHERE id = ?`;
+  const params = [req.params.id];
+  db.run(sql, params, function (err, result) {
+    if (err) {
+      res.status(400).json({ error: res.message });
+      return;
+    }
+
+    res.json({ message: "successfully deleted", changes: this.changes });
+  });
+});
+
 // Default response for any other requests(Not Found) Catch all
 app.use((req, res) => {
   res.status(404).end();
