@@ -5,15 +5,12 @@ const htmlRoutes = require('./routes/htmlRoutes');
 const apiRoutes = require('./routes/apiRoutes')
 app.use(express.static('public'));
 
-app.use('/', htmlRoutes)
-app.use('/api', apiRoutes)
-
 // Express middleware
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-
-
+app.use('/', htmlRoutes)
+app.use('/api', apiRoutes)
 
 
 app.listen(PORT, () => {

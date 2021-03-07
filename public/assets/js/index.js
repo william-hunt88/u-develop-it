@@ -33,14 +33,14 @@ const getNotes = () =>
     },
   });
 
-const saveNote = (note) => 
-    fetch('/api/notes', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(note),
-    });
+const saveNote = (note) =>
+  fetch('/api/notes', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(note),
+  });
 
 const deleteNote = (id) =>
   fetch(`/api/notes/${id}`, {
@@ -57,8 +57,10 @@ const renderActiveNote = () => {
     noteTitle.setAttribute('readonly', true);
     noteText.setAttribute('readonly', true);
     noteTitle.value = activeNote.title;
-    noteText.value = activeNote.title;
+    noteText.value = activeNote.text;
   } else {
+    noteTitle.removeAttribute('readonly');
+    noteText.removeAttribute('readonly');
     noteTitle.value = '';
     noteText.value = '';
   }
@@ -69,9 +71,7 @@ const handleNoteSave = () => {
     title: noteTitle.value,
     text: noteText.value,
   };
-  console.log(newNote);
   saveNote(newNote).then(() => {
-    console.log('here')
     getAndRenderNotes();
     renderActiveNote();
   });
@@ -89,7 +89,8 @@ const handleNoteDelete = (e) => {
     activeNote = {};
   }
 
-  deleteNote(noteId).then(() => {
+  deleteNote(noteId).then((res) => {
+    console.log(res)
     getAndRenderNotes();
     renderActiveNote();
   });
@@ -99,6 +100,7 @@ const handleNoteDelete = (e) => {
 const handleNoteView = (e) => {
   e.preventDefault();
   activeNote = JSON.parse(e.target.parentElement.getAttribute('data-note'));
+
   renderActiveNote();
 };
 
